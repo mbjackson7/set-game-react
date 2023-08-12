@@ -38,7 +38,7 @@ export default function Card(props: CardProps) {
     }
 
         return (
-            <div className="bg-white h-60 w-40 flex flex-col items-center justify-center">
+            <div className="bg-white h-60 w-40 flex flex-col items-center justify-center rounded-2xl">
                 {renderShapes()}
             </div>
         )
