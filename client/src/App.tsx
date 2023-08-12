@@ -11,6 +11,7 @@ function App() {
   const shapes = ['oval', 'diamond', 'squiggle']
   const numbers = [1, 2, 3]
   const shadings = ['fill', 'striped', 'outline']
+  const rotate = window.innerWidth < window.innerHeight ? 'rotate-90' : ''
   const [overflowLevel, setOverflowLevel] = useState<number>(0)
 
   // build a deck of cards
@@ -47,7 +48,7 @@ function App() {
   return (
     <div className='h-screen w-screen flex flex-col items-center justify-center p-10'>
       <h1 className="text-4xl font-bold h-1/6">Set</h1>
-      <div className={`grid grid-rows-3 grid-cols-${overflowLevel+4} gap-2 h-5/6 max-h-[80vw] max-w-screen aspect-square`}>
+      <div className={`grid grid-rows-3 grid-cols-${overflowLevel+4} gap-2 h-5/6 max-h-[96vw] max-w-screen aspect-square ${rotate}`}>
       {
         onTable.map((card, index) => {
           return (
