@@ -79,10 +79,22 @@ function App() {
     }
   }, [selected])
 
+  const drawThree = () => {
+    if (deck.length >= 3) {
+      setOnTable([...onTable, deck[0], deck[1], deck[2]])
+      setDeck(deck.slice(3))
+      setOverflowLevel(overflowLevel + 1)
+    }
+  }
+
+
   return (
     <div className='h-screen w-screen flex flex-col items-center justify-center p-10'>
-      <h1 className="text-4xl font-bold h-1/6">Remaining Cards: {deck.length + onTable.length}</h1>
-      <div className={`grid grid-rows-3 grid-cols-${overflowLevel + 4} gap-2 h-5/6 max-h-[96vw] max-w-screen aspect-square ${rotate}`}>
+      <div className='flex flex-row gap-4 p-4'>
+        <h1 className="text-4xl font-bold h-1/6">Remaining Cards: {deck.length + onTable.length}</h1>
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={drawThree}>Draw 3 Cards</button>
+      </div>
+      <div className={`grid grid-rows-3 grid-cols-${overflowLevel + 4} grid-flow-col gap-2 h-5/6 max-h-[96vw] max-w-screen aspect-${overflowLevel+4}/4 ${rotate}`}>
         {
           onTable.map((card, index) => {
             return (
