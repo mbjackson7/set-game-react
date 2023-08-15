@@ -6,7 +6,7 @@ export default {
   ],
   safelist: [
     {
-      pattern: /(fill|stroke)-(red|green|purple)-(300|600)/,
+      pattern: /(fill|stroke)-(red|green|purple|blue|yellow)-(300|600)/,
     },
     {
       pattern: /grid-cols-(4|5|6|7|8)/,

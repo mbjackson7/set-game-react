@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import Card from './components/Card'
 import { CardAttributes } from './models/card'
+import { io } from 'socket.io-client'
 
 function App() {
   const [onTable, setOnTable] = useState<CardAttributes[]>([])
