@@ -3,7 +3,6 @@
     "version": "0.0.1",
     "author": "Morgan Jackson",
     "description": "Backend to power set server",
-    "type": "module",
     "dependencies": {
         "express": "^4.18.2",
         "socket.io": "^4.7.2"
