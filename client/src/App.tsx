@@ -7,7 +7,7 @@ import Menu from './pages/Menu';
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
-      <Route path="/game/:id" element={<Game />} />
+      <Route path="/game/:id/user/:name" element={<Game />} />
       <Route path="/" element={<Menu />} />
     </Route>
   ),

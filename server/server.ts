@@ -1,6 +1,7 @@
 const { Server } = require("socket.io");
-
-const io = new Server(3000, {
+console.log(process.env.PORT);
+const port = process.env.PORT || 3000;
+const io = new Server(port, {
   cors: {
     origin: "*",
   },
@@ -14,7 +15,7 @@ var gameRooms = {};
 
 function initializeGame(roomId) {
   // create a deck
-  console.log("initializing game for room", roomId)
+  console.log("initializing game for room", roomId);
   let newDeck = [];
   colors.forEach((color) => {
     shapes.forEach((shape) => {
@@ -36,10 +37,13 @@ function initializeGame(roomId) {
   newDeck = newDeck.slice(12);
 
   gameRooms[roomId] = {
+    gameState: "waiting",
     scores: {},
+    players: [],
     deck: newDeck,
     onTable: startingCards,
     selected: [],
+    overflowLevel: 0,
   };
 }
 
@@ -62,10 +66,10 @@ function isSet(cards) {
   );
 }
 
-function isSetOnTable(cards){
+function isSetOnTable(cards) {
   for (let i = 0; i < cards.length; i++) {
-    for (let j = i+1; j < cards.length; j++) {
-      for (let k = j+1; k < cards.length; k++) {
+    for (let j = i + 1; j < cards.length; j++) {
+      for (let k = j + 1; k < cards.length; k++) {
         if (isSet([cards[i], cards[j], cards[k]])) {
           return true;
         }
@@ -87,88 +91,129 @@ io.on("connection", (socket) => {
     socket.emit("room-created", roomId);
   });
 
-
   socket.on("join-room", (roomId, userId) => {
     socket.join(roomId);
     socket.onAny((eventName, ...args) => {
       console.log(userId, "->", eventName, args);
     });
-  
-    socket.onAnyOutgoing((eventName, ...args) => {
-      console.log(userId, "<-", eventName, args);
+    socket.onAnyOutgoing((eventName) => {
+      console.log(userId, "<-", eventName);
     });
-
     if (gameRooms[roomId] === undefined) {
+      console.log("initializing game for room", roomId);
       initializeGame(roomId);
     }
+    if (gameRooms[roomId].players.includes(userId)) {
+      console.log("user", userId, "already in room", roomId);
+      socket.emit("already-in-room");
+      socket.leave(roomId);
+      return;
+    }
     if (gameRooms[roomId].scores[userId] === undefined) {
-      console.log("adding user", userId, "to room", roomId)
+      console.log("adding user", userId, "to room", roomId);
       gameRooms[roomId].scores[userId] = 0;
     }
-    console.log("joining room", roomId, "as user", userId)
-    
-    io.to(roomId).emit("user-connected", userId);
+
+    gameRooms[roomId].players.push(userId);
+    console.log("joining room", roomId, "as user", userId);
+
+    io.to(roomId).emit("user-connected", userId, gameRooms[roomId]);
 
     // User starts game
     socket.on("start-game", () => {
-      console.log("game started for room", roomId)
+      console.log("game started for room", roomId);
+      if (gameRooms[roomId] === undefined) {
+        return;
+      }
+      gameRooms[roomId].gameState = "in-progress";
       io.to(roomId).emit("game-started", gameRooms[roomId]);
     });
 
     // User calls set
-    socket.on("set-called", () => {
-      const timeoutID = setTimeout(() => {
-        if (gameRooms[roomId]['scores'][userId] > 0) {
-          gameRooms[roomId]['scores'][userId] -= 1;
-        }
-        socket.off("select");
-        return;
-      }, 10000);
-
-      socket.on("select", (card) => {
-        if (gameRooms[roomId].selected.length < 3) {
-          gameRooms[roomId].selected.push(card);
-          io.to(roomId).emit("card-selected", card);
-          if (gameRooms[roomId].selected.length === 3) {
-            clearTimeout(timeoutID);
-            socket.off("select");
-            if (isSet(gameRooms[roomId].selected)) {
-              gameRooms[roomId]['scores'][userId] += 1;
-              gameRooms[roomId].selected.forEach((card) => {
-                const index = gameRooms[roomId].onTable.indexOf(card);
-                gameRooms[roomId].onTable[index] = gameRooms[roomId].deck.pop();
-              });
-              gameRooms[roomId].selected = [];
-              gameRooms[roomId].onTable = gameRooms[roomId].onTable.filter(
-                (card) => card !== undefined
-              );
-              io.to(roomId).emit("set-found", gameRooms[roomId]);
-              if (!isSetOnTable(gameRooms[roomId].onTable)) {
-                io.to(roomId).emit("game-over", gameRooms[roomId]);
-              }
-            } else {
-              gameRooms[roomId].selected = [];
-              gameRooms[roomId]['scores'][userId] -= 1;
-              io.to(roomId).emit("set-not-found", gameRooms[roomId]);
-            }
-            gameRooms[roomId].selected = [];
-            
+    socket.on("call-set", () => {
+      if (gameRooms[roomId].gameState === "in-progress") {
+        gameRooms[roomId].gameState = userId;
+        socket.to(roomId).emit("set-called", userId);
+        setTimeout(() => {
+          if (gameRooms[roomId].gameState === userId) {
+            gameRooms[roomId].gameState = "in-progress";
+            gameRooms[roomId].scores[userId] -= 1;
+            io.to(roomId).emit("set-not-found", gameRooms[roomId]);
           }
         }
-      });
+        , 10000);
+      }
     });
 
-    socket.on("request-cards", () => {
+    socket.on("select", (index) => {
+      console.log("user", userId, "selected card", index, "in room", roomId);
+      console.log(gameRooms[roomId].selected);
+      if (gameRooms[roomId].selected.length < 3 && gameRooms[roomId].gameState === userId) {
+        if (gameRooms[roomId].selected.includes(index)) {
+          gameRooms[roomId].selected = gameRooms[roomId].selected.filter(
+            (i) => i !== index
+          );
+          io.to(roomId).emit("card-deselected", index);
+          return;
+        }
+        gameRooms[roomId].selected.push(index);
+        io.to(roomId).emit("card-selected", index);
+        if (gameRooms[roomId].selected.length === 3) {
+          gameRooms[roomId].gameState = "in-progress";
+          let cards = gameRooms[roomId].selected.map(
+            (index) => gameRooms[roomId].onTable[index]
+          );
+          if (isSet(cards)) {
+            gameRooms[roomId]["scores"][userId] += 1;
+            if (gameRooms[roomId].onTable.length <= 12) {
+              gameRooms[roomId].selected.forEach((index) => {
+                gameRooms[roomId].onTable[index] = gameRooms[roomId].deck.pop();
+              });
+            } else {
+              gameRooms[roomId].overflowLevel -= 1;
+              gameRooms[roomId].onTable = gameRooms[roomId].onTable.filter(
+                (card) => !cards.includes(card)
+              );
+            }
+
+            gameRooms[roomId].selected = [];
+            gameRooms[roomId].onTable = gameRooms[roomId].onTable.filter(
+              (card) => card !== undefined
+            );
+            io.to(roomId).emit("set-found", gameRooms[roomId], userId);
+            if (!isSetOnTable(gameRooms[roomId].onTable)) {
+              gameRooms[roomId].gameState = "game-over";
+              io.to(roomId).emit("game-over", gameRooms[roomId]);
+            }
+          } else {
+            gameRooms[roomId].selected = [];
+            gameRooms[roomId]["scores"][userId] -= 1;
+            io.to(roomId).emit("set-not-found", gameRooms[roomId], userId);
+          }
+        }
+      }
+    });
+
+    socket.on("draw-three", () => {
       if (gameRooms[roomId].deck.length > 0) {
         const newCards = gameRooms[roomId].deck.slice(0, 3);
         gameRooms[roomId].deck = gameRooms[roomId].deck.slice(3);
         gameRooms[roomId].onTable = gameRooms[roomId].onTable.concat(newCards);
-        io.to(roomId).emit("cards-added", newCards);
+        gameRooms[roomId].overflowLevel += 1;
+        console.log("added", newCards, "to room", roomId)
+        io.to(roomId).emit("cards-added", gameRooms[roomId]);
       }
     });
 
     // User disconnects
     socket.on("disconnect", () => {
+      console.log("user", userId, "disconnected from room", roomId);
+      if (gameRooms[roomId] === undefined) {
+        return;
+      }
+      gameRooms[roomId].players = gameRooms[roomId].players.filter(
+        (player) => player !== userId
+      );
       socket.to(roomId).emit("user-disconnected", userId);
     });
   });

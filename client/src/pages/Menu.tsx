@@ -5,31 +5,42 @@ import { useState } from 'react';
 
 export default function Menu() {
     const navigate = useNavigate();
+    const [name, setName] = useState('');
+    const [nameEntered, setNameEntered] = useState(false);
     const [roomCode, setRoomCode] = useState('');
     const [enterCode, setEnterCode] = useState(false);
 
     function createRoom() {
         socket.emit('create-room');
         socket.on('room-created', (roomCode: string) => {
-            navigate(`/game/${roomCode}`);
+            navigate(`/game/${roomCode}/user/${name}`);
         });
     }
 
     // create or join room
     return (
         <div className='w-screen h-screen flex flex-col justify-center items-center gap-10'>
-            {!enterCode ?
+            {!nameEntered ?
                 <>
-                    <button className='w-40 border-2 bg-green-600 hover:bg-slate-500 p-5' onClick={createRoom}>Create Room</button>
-                    <button className='w-40 border-2 bg-purple-600 hover:bg-slate-500 p-5' onClick={() => setEnterCode(true)}>Join Room</button>
+                    <label className="text-3xl">Enter Name</label>
+                    <input type='text' className='border-2 border-black h-20 w-120 text-5xl text-center' value={name} onChange={(e) => setName(e.target.value)} />
+                    <button className='w-40 border-2 bg-green-600 hover:bg-slate-500 p-5' onClick={() => setNameEntered(true)}>Enter</button>
                 </>
+
                 :
-                <>
-                    <button className='border-2 bg-red-600 hover:bg-slate-500 p-1' onClick={() => setEnterCode(false)}>Back</button>
-                    <label className="text-3xl">Enter Room Code</label>
-                    <input type='text' className='border-2 border-black h-20 w-40 text-5xl text-center' value={roomCode} onChange={(e) => setRoomCode(e.target.value)} />
-                    <button className='w-40 border-2 bg-green-600 hover:bg-slate-500 p-5' onClick={() => navigate(`/game/${roomCode}`)}>Enter Room</button>
-                </>
+                (!enterCode ?
+                    <>
+                        <label className="text-3xl">Welcome, {name}</label>
+                        <button className='w-40 border-2 bg-green-600 hover:bg-slate-500 p-5' onClick={createRoom}>Create Room</button>
+                        <button className='w-40 border-2 bg-purple-600 hover:bg-slate-500 p-5' onClick={() => setEnterCode(true)}>Join Room</button>
+                    </>
+                    :
+                    <>
+                        <button className='border-2 bg-red-600 hover:bg-slate-500 p-1' onClick={() => setEnterCode(false)}>Back</button>
+                        <label className="text-3xl">Enter Room Code</label>
+                        <input type='text' className='border-2 border-black h-20 w-40 text-5xl text-center' value={roomCode} onChange={(e) => setRoomCode(e.target.value)} />
+                        <button className='w-40 border-2 bg-green-600 hover:bg-slate-500 p-5' onClick={() => navigate(`/game/${roomCode}/user/${name}`)}>Enter Room</button>
+                    </>)
             }
         </div>
     )

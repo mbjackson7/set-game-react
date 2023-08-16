@@ -7,7 +7,7 @@ export default function Card(props: CardProps) {
         let iterator = [];
         let colorFill = `stroke-${color}-600 stroke-8`
         switch (shading) {
-            case "fill":
+            case "solid":
                 colorFill += ` fill-${color}-600`
                 break;
             case "striped":
