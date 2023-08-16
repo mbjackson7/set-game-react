@@ -14,6 +14,7 @@ var gameRooms = {};
 
 function initializeGame(roomId) {
   // create a deck
+  console.log("initializing game for room", roomId)
   let newDeck = [];
   colors.forEach((color) => {
     shapes.forEach((shape) => {
@@ -76,21 +77,43 @@ function isSetOnTable(cards){
 
 io.on("connection", (socket) => {
   //  User joins room
+
+  socket.on("create-room", () => {
+    // Generate random room 4 digit room code
+    let roomId = Math.floor(1000 + Math.random() * 9000);
+    while (gameRooms[roomId] !== undefined) {
+      roomId = Math.floor(1000 + Math.random() * 9000);
+    }
+    socket.emit("room-created", roomId);
+  });
+
+
   socket.on("join-room", (roomId, userId) => {
+    socket.onAny((eventName, ...args) => {
+      console.log(userId, "->", eventName, args);
+    });
+  
+    socket.onAnyOutgoing((eventName, ...args) => {
+      console.log(userId, "<-", eventName, args);
+    });
+
     if (gameRooms[roomId] === undefined) {
       initializeGame(roomId);
     }
     if (gameRooms[roomId].scores[userId] === undefined) {
+      console.log("adding user", userId, "to room", roomId)
       gameRooms[roomId].scores[userId] = 0;
     }
+    console.log("joining room", roomId, "as user", userId)
     socket.join(roomId);
     
 
-    socket.to(roomId).broadcast.emit("user-connected", userId);
+    socket.to(roomId).emit("user-connected", userId);
 
     // User starts game
     socket.on("start-game", () => {
-      socket.to(roomId).broadcast.emit("game-started", gameRooms[roomId]);
+      console.log("game started for room", roomId)
+      socket.to(roomId).emit("game-started", gameRooms[roomId]);
     });
 
     // User calls set
@@ -106,7 +129,7 @@ io.on("connection", (socket) => {
       socket.on("select", (card) => {
         if (gameRooms[roomId].selected.length < 3) {
           gameRooms[roomId].selected.push(card);
-          socket.to(roomId).broadcast.emit("card-selected", card);
+          socket.to(roomId).emit("card-selected", card);
           if (gameRooms[roomId].selected.length === 3) {
             clearTimeout(timeoutID);
             socket.off("select");
@@ -120,14 +143,14 @@ io.on("connection", (socket) => {
               gameRooms[roomId].onTable = gameRooms[roomId].onTable.filter(
                 (card) => card !== undefined
               );
-              socket.to(roomId).broadcast.emit("set-found", gameRooms[roomId]);
+              socket.to(roomId).emit("set-found", gameRooms[roomId]);
               if (!isSetOnTable(gameRooms[roomId].onTable)) {
-                socket.to(roomId).broadcast.emit("game-over", gameRooms[roomId]);
+                socket.to(roomId).emit("game-over", gameRooms[roomId]);
               }
             } else {
               gameRooms[roomId].selected = [];
               gameRooms[roomId]['scores'][userId] -= 1;
-              socket.to(roomId).broadcast.emit("set-not-found", gameRooms[roomId]);
+              socket.to(roomId).emit("set-not-found", gameRooms[roomId]);
             }
             gameRooms[roomId].selected = [];
             
@@ -141,13 +164,13 @@ io.on("connection", (socket) => {
         const newCards = gameRooms[roomId].deck.slice(0, 3);
         gameRooms[roomId].deck = gameRooms[roomId].deck.slice(3);
         gameRooms[roomId].onTable = gameRooms[roomId].onTable.concat(newCards);
-        socket.to(roomId).broadcast.emit("cards-added", newCards);
+        socket.to(roomId).emit("cards-added", newCards);
       }
     });
 
     // User disconnects
     socket.on("disconnect", () => {
-      socket.to(roomId).broadcast.emit("user-disconnected", userId);
+      socket.to(roomId).emit("user-disconnected", userId);
     });
   });
 });
