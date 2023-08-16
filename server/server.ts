@@ -89,6 +89,7 @@ io.on("connection", (socket) => {
 
 
   socket.on("join-room", (roomId, userId) => {
+    socket.join(roomId);
     socket.onAny((eventName, ...args) => {
       console.log(userId, "->", eventName, args);
     });
@@ -105,15 +106,13 @@ io.on("connection", (socket) => {
       gameRooms[roomId].scores[userId] = 0;
     }
     console.log("joining room", roomId, "as user", userId)
-    socket.join(roomId);
     
-
-    socket.to(roomId).emit("user-connected", userId);
+    io.to(roomId).emit("user-connected", userId);
 
     // User starts game
     socket.on("start-game", () => {
       console.log("game started for room", roomId)
-      socket.to(roomId).emit("game-started", gameRooms[roomId]);
+      io.to(roomId).emit("game-started", gameRooms[roomId]);
     });
 
     // User calls set
@@ -129,7 +128,7 @@ io.on("connection", (socket) => {
       socket.on("select", (card) => {
         if (gameRooms[roomId].selected.length < 3) {
           gameRooms[roomId].selected.push(card);
-          socket.to(roomId).emit("card-selected", card);
+          io.to(roomId).emit("card-selected", card);
           if (gameRooms[roomId].selected.length === 3) {
             clearTimeout(timeoutID);
             socket.off("select");
@@ -143,14 +142,14 @@ io.on("connection", (socket) => {
               gameRooms[roomId].onTable = gameRooms[roomId].onTable.filter(
                 (card) => card !== undefined
               );
-              socket.to(roomId).emit("set-found", gameRooms[roomId]);
+              io.to(roomId).emit("set-found", gameRooms[roomId]);
               if (!isSetOnTable(gameRooms[roomId].onTable)) {
-                socket.to(roomId).emit("game-over", gameRooms[roomId]);
+                io.to(roomId).emit("game-over", gameRooms[roomId]);
               }
             } else {
               gameRooms[roomId].selected = [];
               gameRooms[roomId]['scores'][userId] -= 1;
-              socket.to(roomId).emit("set-not-found", gameRooms[roomId]);
+              io.to(roomId).emit("set-not-found", gameRooms[roomId]);
             }
             gameRooms[roomId].selected = [];
             
@@ -164,7 +163,7 @@ io.on("connection", (socket) => {
         const newCards = gameRooms[roomId].deck.slice(0, 3);
         gameRooms[roomId].deck = gameRooms[roomId].deck.slice(3);
         gameRooms[roomId].onTable = gameRooms[roomId].onTable.concat(newCards);
-        socket.to(roomId).emit("cards-added", newCards);
+        io.to(roomId).emit("cards-added", newCards);
       }
     });
 

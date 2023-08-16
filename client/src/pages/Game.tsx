@@ -25,12 +25,14 @@ export default function Game() {
     });
 
     socket.on('user-connected', (player: string) => {
+      console.log(player + ' connected')
       if (player !== userName) {
         setPlayers(players => [...players, player])
       }
     })
 
     socket.on('user-disconnected', (player: string) => {
+      console.log(player + ' disconnected')
       if (player !== userName) {
         setPlayers(players => players.filter(p => p !== player))
       }
@@ -75,7 +77,7 @@ export default function Game() {
             {
               onTable.map((card, index) => {
                 return (
-                  <button key={index} className="flex justify-center h-full aspect-5/7" onClick={() => { toggleSelected(index) }}>
+                  <button key={index} className="flex justify-center h-full aspect-5/7" onClick={() => { }}>
                     <Card key={index} attributes={card} selected={selected.includes(index)} />
                   </button>
                 )
