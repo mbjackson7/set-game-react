@@ -18,6 +18,7 @@ export default function Game() {
   const navigate = useNavigate()
   const rotate = window.innerWidth < window.innerHeight ? 'rotate-90' : ''
   const [message, setMessage] = useState<Message>({ text: '', color: '' })
+  const [timer, setTimer] = useState<number>(0)
 
   interface Message {
     text: string,
@@ -34,6 +35,8 @@ export default function Game() {
       setSelected(state.selected)
       setPlayers(state.players)
     }
+    socket.disconnect()
+    socket.connect()
     socket.emit('join-room', room, userName)
 
     socket.on('already-in-room', () => {
@@ -51,11 +54,16 @@ export default function Game() {
     })
 
     socket.on('set-called', (player: string) => {
-      setMessage({ text: player + ' called set!', color: 'green' })
+      if (player !== userName) {
+        setMessage({ text: player + ' called set!', color: 'green' })
+      }
       setGameState(player)
       setTimeout(() => {
-        setMessage({ text: '', color: '' })
+        if (message.text === player + ' called set!') {
+          setMessage({ text: '', color: '' })
+        }
       }, 2000)
+      setTimer(10)
     })
 
     socket.on('card-selected', (index: number) => {
@@ -79,7 +87,7 @@ export default function Game() {
     })
 
     socket.on('set-not-found', (state: GameState, player: string) => {
-      setMessage({ text: player + " could'nt find a set :(", color: 'red' })
+      setMessage({ text: player + " couldn't find a set :(", color: 'red' })
       setTimeout(() => {
         setMessage({ text: '', color: '' })
         updateState(state)
@@ -87,12 +95,9 @@ export default function Game() {
     })
 
     socket.on('game-over', (state: GameState) => {
+      updateState(state)
       let winner = scores[Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b)]
       setMessage({ text: `No more sets, ${winner} won!`, color: 'red' })
-      setTimeout(() => {
-        setMessage({ text: '', color: '' })
-        updateState(state)
-      }, 2000)
     })
 
     socket.on('user-disconnected', (player: string) => {
@@ -104,8 +109,21 @@ export default function Game() {
 
     return () => {
       socket.off('game-started')
+      socket.off('user-connected')
+      socket.off('set-called')
+      socket.off('card-selected')
+      socket.off('card-deselected')
+      socket.off('cards-added')
+      socket.off('set-found')
+      socket.off('set-not-found')
+      socket.off('game-over')
+      socket.off('user-disconnected')
     }
   }, [])
+
+  useEffect(() => {
+    timer > 0 && setTimeout(() => setTimer(timer - 1), 1000);
+  }, [timer]);
 
   const drawThree = () => {
     socket.emit('draw-three')
@@ -153,8 +171,9 @@ export default function Game() {
                 {players.map(player => <li key={player}>{player}: {scores[player]}</li>)}
               </ul>
             </div>
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={drawThree}>Draw 3 Cards</button>
-            <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' onClick={callSet}>Set!</button>
+            <button className="bg-blue-500 text-white font-bold py-2 px-4 rounded" onClick={drawThree}>Draw 3 Cards</button>
+            <button className='bg-blue-600 text-white font-bold py-2 px-4 rounded' onClick={callSet}>Set!</button>
+            {timer > 0 && <h1>{timer}</h1>}
           </div>
           <div className={`grid grid-rows-3 grid-cols-${overflowLevel + 4} grid-flow-col gap-2 h-5/6 max-h-[96vw] max-w-screen aspect-${overflowLevel + 4}/4 ${rotate}`}>
             {

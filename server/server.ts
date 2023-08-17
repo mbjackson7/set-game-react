@@ -133,7 +133,7 @@ io.on("connection", (socket) => {
     socket.on("call-set", () => {
       if (gameRooms[roomId].gameState === "in-progress") {
         gameRooms[roomId].gameState = userId;
-        socket.to(roomId).emit("set-called", userId);
+        io.to(roomId).emit("set-called", userId);
         setTimeout(() => {
           if (gameRooms[roomId].gameState === userId) {
             gameRooms[roomId].gameState = "in-progress";
