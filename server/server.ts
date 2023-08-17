@@ -189,10 +189,12 @@ io.on("connection", (socket) => {
               (card) => card !== undefined
             );
             io.to(roomId).emit("set-found", gameRooms[roomId], userId);
-            if (gameRoomsPrivate[roomId].deck.length === 0 && !isSetOnTable(gameRooms[roomId].onTable)) {
-              gameRooms[roomId].gameState = "game-over";
-              io.to(roomId).emit("game-over", gameRooms[roomId]);
-            }
+            setTimeout(() => {
+              if (gameRoomsPrivate[roomId].deck.length === 0 && !isSetOnTable(gameRooms[roomId].onTable)) {
+                gameRooms[roomId].gameState = "game-over";
+                io.to(roomId).emit("game-over", gameRooms[roomId]);
+              }
+            }, 3000)
           } else {
             gameRooms[roomId].selected = [];
             gameRooms[roomId]["scores"][userId] -= 1;
