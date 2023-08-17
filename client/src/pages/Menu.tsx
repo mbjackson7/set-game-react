@@ -30,7 +30,7 @@ export default function Menu() {
 
     // create or join room
     return (
-        <div className='w-screen h-screen flex flex-col justify-center items-center gap-10'>
+        <div className='w-screen h-[calc(100dvh)] flex flex-col justify-center items-center gap-10'>
             {!nameEntered ?
                 <>
                     <input type='text' className='border-2 border-black h-20 w-120 text-5xl text-center' placeholder="Enter Name Here" value={name} onChange={(e) => setName(e.target.value)} />
@@ -48,7 +48,7 @@ export default function Menu() {
                     <>
                         <button className='border-2 bg-red-600  p-1' onClick={() => setEnterCode(false)}>Back</button>
                         <label className="text-3xl">Enter Room Code</label>
-                        <input type='text' className='border-2 border-black h-20 w-40 text-5xl text-center' value={roomCode} onChange={(e) => setRoomCode(e.target.value)} />
+                        <input type='text' className='border-2 border-black h-20 w-40 text-5xl text-center' placeholder="####" value={roomCode} onChange={(e) => setRoomCode(e.target.value)} />
                         <button className='w-40 border-2 bg-green-600 p-5' onClick={() => navigate(`/game/${roomCode}/user/${name}`)}>Enter Room</button>
                     </>)
             }
