@@ -182,7 +182,7 @@ io.on("connection", (socket) => {
               (card) => card !== undefined
             );
             io.to(roomId).emit("set-found", gameRooms[roomId], userId);
-            if (!isSetOnTable(gameRooms[roomId].onTable)) {
+            if (gameRooms[roomId].deck.length === 0 && !isSetOnTable(gameRooms[roomId].onTable)) {
               gameRooms[roomId].gameState = "game-over";
               io.to(roomId).emit("game-over", gameRooms[roomId]);
             }
