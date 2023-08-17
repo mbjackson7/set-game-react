@@ -12,6 +12,7 @@ const shapes = ["oval", "squiggle", "diamond"];
 const numbers = [1, 2, 3];
 const shadings = ["solid", "striped", "outlined"];
 var gameRooms = {};
+var gameRoomsPrivate = {};
 
 function initializeGame(roomId) {
   // create a deck
@@ -40,10 +41,14 @@ function initializeGame(roomId) {
     gameState: "waiting",
     scores: {},
     players: [],
-    deck: newDeck,
     onTable: startingCards,
     selected: [],
     overflowLevel: 0,
+  };
+
+  gameRoomsPrivate[roomId] = {
+    deck: newDeck,
+    timerID: ""
   };
 }
 
@@ -134,15 +139,14 @@ io.on("connection", (socket) => {
       if (gameRooms[roomId].gameState === "in-progress") {
         gameRooms[roomId].gameState = userId;
         io.to(roomId).emit("set-called", userId);
-        setTimeout(() => {
+        gameRoomsPrivate[roomId].timerID = setTimeout(() => {
           if (gameRooms[roomId].gameState === userId) {
             gameRooms[roomId].gameState = "in-progress";
             gameRooms[roomId].scores[userId] -= 1;
             gameRooms[roomId].selected = [];
             io.to(roomId).emit("set-not-found", gameRooms[roomId], userId);
           }
-        }
-        , 10000);
+        }, 10000);
       }
     });
 
@@ -160,6 +164,7 @@ io.on("connection", (socket) => {
         gameRooms[roomId].selected.push(index);
         io.to(roomId).emit("card-selected", index);
         if (gameRooms[roomId].selected.length === 3) {
+          clearTimeout(gameRoomsPrivate[roomId].timerID)
           gameRooms[roomId].gameState = "in-progress";
           let cards = gameRooms[roomId].selected.map(
             (index) => gameRooms[roomId].onTable[index]
@@ -168,7 +173,7 @@ io.on("connection", (socket) => {
             gameRooms[roomId]["scores"][userId] += 1;
             if (gameRooms[roomId].onTable.length <= 12) {
               gameRooms[roomId].selected.forEach((index) => {
-                gameRooms[roomId].onTable[index] = gameRooms[roomId].deck.pop();
+                gameRooms[roomId].onTable[index] = gameRoomsPrivate[roomId].deck.pop();
               });
             } else {
               gameRooms[roomId].overflowLevel -= 1;
@@ -196,9 +201,9 @@ io.on("connection", (socket) => {
     });
 
     socket.on("draw-three", () => {
-      if (gameRooms[roomId].deck.length > 0) {
-        const newCards = gameRooms[roomId].deck.slice(0, 3);
-        gameRooms[roomId].deck = gameRooms[roomId].deck.slice(3);
+      if (gameRoomsPrivate[roomId].deck.length > 0) {
+        const newCards = gameRoomsPrivate[roomId].deck.slice(0, 3);
+        gameRoomsPrivate[roomId].deck = gameRoomsPrivate[roomId].deck.slice(3);
         gameRooms[roomId].onTable = gameRooms[roomId].onTable.concat(newCards);
         gameRooms[roomId].overflowLevel += 1;
         console.log("added", newCards, "to room", roomId)
@@ -223,6 +228,7 @@ io.on("connection", (socket) => {
 // Delete room when all users leave to save memory
 io.of("/").adapter.on("delete-room", (room) => {
   delete gameRooms[room];
+  delete gameRoomsPrivate[room]
 });
 
 console.log(`Server listening on port ${port}`);
