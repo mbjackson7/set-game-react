@@ -224,4 +224,4 @@ io.of("/").adapter.on("delete-room", (room) => {
   delete gameRooms[room];
 });
 
-console.log("Server listening on port 3000");
+console.log(`Server listening on port ${port}`);
