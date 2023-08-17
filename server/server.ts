@@ -152,7 +152,6 @@ io.on("connection", (socket) => {
 
     socket.on("select", (index) => {
       console.log("user", userId, "selected card", index, "in room", roomId);
-      console.log(gameRooms[roomId].selected);
       if (gameRooms[roomId].selected.length < 3 && gameRooms[roomId].gameState === userId) {
         if (gameRooms[roomId].selected.includes(index)) {
           gameRooms[roomId].selected = gameRooms[roomId].selected.filter(
@@ -164,11 +163,14 @@ io.on("connection", (socket) => {
         gameRooms[roomId].selected.push(index);
         io.to(roomId).emit("card-selected", index);
         if (gameRooms[roomId].selected.length === 3) {
+          console.log(gameRooms[roomId].selected);
+          console.log(gameRooms[roomId].onTable.length)
           clearTimeout(gameRoomsPrivate[roomId].timerID)
           gameRooms[roomId].gameState = "in-progress";
           let cards = gameRooms[roomId].selected.map(
             (index) => gameRooms[roomId].onTable[index]
           );
+          console.log(cards)
           if (isSet(cards)) {
             gameRooms[roomId]["scores"][userId] += 1;
             if (gameRooms[roomId].onTable.length <= 12) {

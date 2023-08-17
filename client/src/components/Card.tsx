@@ -34,7 +34,6 @@ export default function Card(props: CardProps) {
                     </svg>)
             }
         }
-        console.log(iterator)
         return iterator;
     }
 

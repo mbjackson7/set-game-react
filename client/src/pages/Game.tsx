@@ -87,6 +87,7 @@ export default function Game() {
     socket.on('game-over', (state: GameState) => {
       clearTimer()
       let winner = scores[Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b)]
+      console.log(`Game Over, ${winner} wins!`)
       sendMessage({ text: `No more sets, ${winner} won!`, color: 'red' }, state, updateState, true)
     })
 
