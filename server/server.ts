@@ -138,7 +138,8 @@ io.on("connection", (socket) => {
           if (gameRooms[roomId].gameState === userId) {
             gameRooms[roomId].gameState = "in-progress";
             gameRooms[roomId].scores[userId] -= 1;
-            io.to(roomId).emit("set-not-found", gameRooms[roomId]);
+            gameRooms[roomId].selected = [];
+            io.to(roomId).emit("set-not-found", gameRooms[roomId], userId);
           }
         }
         , 10000);
