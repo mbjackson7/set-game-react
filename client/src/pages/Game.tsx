@@ -205,7 +205,6 @@ export default function Game() {
           <div className='flex flex-row gap-4 p-4'>
             <button className="bg-red-800 text-white font-bold py-2 w-24 rounded" onClick={drawThree}>Draw 3</button>
             <button className='bg-green-800 text-white font-bold py-2 w-24 rounded' onClick={callSet}>Set!</button>
-            <button className="bg-red-800 text-white font-bold py-2 w-24 rounded" onClick={getLeader}>Check Leader</button>
           </div>
         </>
       }
