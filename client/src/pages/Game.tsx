@@ -86,8 +86,8 @@ export default function Game() {
 
     socket.on('game-over', (state: GameState) => {
       clearTimer()
-      let winner = scores[Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b)]
-      console.log(`Game Over, ${winner} wins!`)
+      let winner = getLeader();
+      console.log(`Game Over, ${winner} wins in ${room}!`)
       sendMessage({ text: `No more sets, ${winner} won!`, color: 'red' }, state, updateState, true)
     })
 
@@ -135,6 +135,10 @@ export default function Game() {
         updateState(state)
       }
     }, 2500)
+  }
+
+  const getLeader = () => {
+    return Object.keys(scores).reduce(function(a, b){ return scores[a] > scores[b] ? a : b });
   }
 
   const drawThree = () => {
@@ -201,6 +205,7 @@ export default function Game() {
           <div className='flex flex-row gap-4 p-4'>
             <button className="bg-red-800 text-white font-bold py-2 w-24 rounded" onClick={drawThree}>Draw 3</button>
             <button className='bg-green-800 text-white font-bold py-2 w-24 rounded' onClick={callSet}>Set!</button>
+            <button className="bg-red-800 text-white font-bold py-2 w-24 rounded" onClick={getLeader}>Check Leader</button>
           </div>
         </>
       }
