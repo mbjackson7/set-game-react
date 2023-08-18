@@ -86,7 +86,8 @@ export default function Game() {
 
     socket.on('game-over', (state: GameState) => {
       clearTimer()
-      let winner = getLeader();
+      console.log("Game over pt 1")
+      let winner = Object.keys(state.scores).reduce(function(a, b){ return state.scores[a] > state.scores[b] ? a : b });
       console.log(`Game Over, ${winner} wins in ${room}!`)
       sendMessage({ text: `No more sets, ${winner} won!`, color: 'red' }, state, updateState, true)
     })
@@ -136,11 +137,7 @@ export default function Game() {
       }
     }, 2500)
   }
-
-  const getLeader = () => {
-    return Object.keys(scores).reduce(function(a, b){ return scores[a] > scores[b] ? a : b });
-  }
-
+   
   const drawThree = () => {
     socket.emit('draw-three')
   }
