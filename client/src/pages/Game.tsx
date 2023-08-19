@@ -159,10 +159,19 @@ export default function Game() {
     }
   }
 
+  const playAgain = () => {
+    socket.emit('play-again')
+  }
+
 
   return (
     <div className='h-[calc(100dvh)] w-screen flex flex-col items-center justify-between px-10 py-4'>
       {message.text && <MessageModal message={message}/>}
+      {gameState == "game-over" && 
+        <button onClick={playAgain} className='fixed bottom-80 text-3xl bg-purple-800 p-5 border z-50'>
+          Play Again
+        </button>
+      }
       {gameState === 'waiting' ?
         <div className='h-full w-full flex flex-col items-center justify-center'>
           <h1>Room</h1>

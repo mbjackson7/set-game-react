@@ -215,6 +215,12 @@ io.on("connection", (socket) => {
       }
     });
 
+    socket.on("play-again", () => {
+      console.log("playing again in room", roomId);
+      initializeGame(roomId);
+      io.to(roomId).emit("game-started", gameRooms[roomId]);
+    });
+
     // User disconnects
     socket.on("disconnect", () => {
       console.log("user", userId, "disconnected from room", roomId);
