@@ -160,6 +160,7 @@ export default function Game() {
   }
 
   const playAgain = () => {
+    setMessage({ text: '', color: '' })
     socket.emit('play-again')
   }
 
@@ -168,7 +169,7 @@ export default function Game() {
     <div className='h-[calc(100dvh)] w-screen flex flex-col items-center justify-between px-10 py-4'>
       {message.text && <MessageModal message={message}/>}
       {gameState == "game-over" && 
-        <button onClick={playAgain} className='fixed bottom-80 text-3xl bg-purple-800 p-5 border z-50'>
+        <button onClick={playAgain} className='fixed bottom-40 text-3xl bg-purple-800 p-5 border z-50'>
           Play Again
         </button>
       }
