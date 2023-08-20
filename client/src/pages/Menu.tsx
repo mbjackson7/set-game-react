@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 export default function Menu() {
     const navigate = useNavigate();
-    const [name, setName] = useState('');
+    const [name, setName] = useState(localStorage.getItem('name') || '');
     const [nameEntered, setNameEntered] = useState(false);
     const [roomCode, setRoomCode] = useState('');
     const [enterCode, setEnterCode] = useState(false);
@@ -17,6 +17,7 @@ export default function Menu() {
 
     function handleNameEnter() {
         if (name.length > 0) {
+            localStorage.setItem('name', name);
             setNameEntered(true);
         }
     }
