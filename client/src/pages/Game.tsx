@@ -46,6 +46,7 @@ export default function Game() {
     })
 
     socket.on('game-started', (state: GameState) => {
+      setMessage({ text: '', color: '' })
       updateState(state)
     });
 
@@ -160,7 +161,6 @@ export default function Game() {
   }
 
   const playAgain = () => {
-    setMessage({ text: '', color: '' })
     socket.emit('play-again')
   }
 
