@@ -48,7 +48,7 @@ function initializeGame(roomId) {
 
   gameRoomsPrivate[roomId] = {
     deck: newDeck,
-    timerID: ""
+    timerID: "",
   };
 }
 
@@ -152,7 +152,10 @@ io.on("connection", (socket) => {
 
     socket.on("select", (index) => {
       console.log("user", userId, "selected card", index, "in room", roomId);
-      if (gameRooms[roomId].selected.length < 3 && gameRooms[roomId].gameState === userId) {
+      if (
+        gameRooms[roomId].selected.length < 3 &&
+        gameRooms[roomId].gameState === userId
+      ) {
         if (gameRooms[roomId].selected.includes(index)) {
           gameRooms[roomId].selected = gameRooms[roomId].selected.filter(
             (i) => i !== index
@@ -165,7 +168,7 @@ io.on("connection", (socket) => {
         if (gameRooms[roomId].selected.length === 3) {
           console.log(gameRooms[roomId].selected);
           console.log(gameRooms[roomId].onTable.length);
-          clearTimeout(gameRoomsPrivate[roomId].timerID)
+          clearTimeout(gameRoomsPrivate[roomId].timerID);
           gameRooms[roomId].gameState = "in-progress";
           let cards = gameRooms[roomId].selected.map(
             (index) => gameRooms[roomId].onTable[index]
@@ -175,7 +178,8 @@ io.on("connection", (socket) => {
             gameRooms[roomId]["scores"][userId] += 1;
             if (gameRooms[roomId].onTable.length <= 12) {
               gameRooms[roomId].selected.forEach((index) => {
-                gameRooms[roomId].onTable[index] = gameRoomsPrivate[roomId].deck.pop();
+                gameRooms[roomId].onTable[index] =
+                  gameRoomsPrivate[roomId].deck.pop();
               });
             } else {
               gameRooms[roomId].overflowLevel -= 1;
@@ -188,13 +192,24 @@ io.on("connection", (socket) => {
             gameRooms[roomId].onTable = gameRooms[roomId].onTable.filter(
               (card) => card !== undefined
             );
-            io.to(roomId).emit("set-found", gameRooms[roomId], userId);
-            setTimeout(() => {
-              if (gameRoomsPrivate[roomId].deck.length === 0 && !isSetOnTable(gameRooms[roomId].onTable)) {
-                gameRooms[roomId].gameState = "game-over";
-                io.to(roomId).emit("game-over", gameRooms[roomId]);
+
+            while (!isSetOnTable(gameRooms[roomId].onTable)) {
+              if (gameRoomsPrivate[roomId].deck.length === 0) {
+                setTimeout(() => {
+                  gameRooms[roomId].gameState = "game-over";
+                  io.to(roomId).emit("game-over", gameRooms[roomId]);
+                  return;
+                }, 3000);
               }
-            }, 3000)
+              const newCards = gameRoomsPrivate[roomId].deck.slice(0, 3);
+              gameRoomsPrivate[roomId].deck =
+                gameRoomsPrivate[roomId].deck.slice(3);
+              gameRooms[roomId].onTable =
+                gameRooms[roomId].onTable.concat(newCards);
+              gameRooms[roomId].overflowLevel += 1;
+            }
+
+            io.to(roomId).emit("set-found", gameRooms[roomId], userId);
           } else {
             gameRooms[roomId].selected = [];
             gameRooms[roomId]["scores"][userId] -= 1;
@@ -210,7 +225,7 @@ io.on("connection", (socket) => {
         gameRoomsPrivate[roomId].deck = gameRoomsPrivate[roomId].deck.slice(3);
         gameRooms[roomId].onTable = gameRooms[roomId].onTable.concat(newCards);
         gameRooms[roomId].overflowLevel += 1;
-        console.log("added", newCards, "to room", roomId)
+        console.log("added", newCards, "to room", roomId);
         io.to(roomId).emit("cards-added", gameRooms[roomId]);
       }
     });
@@ -238,7 +253,7 @@ io.on("connection", (socket) => {
 // Delete room when all users leave to save memory
 io.of("/").adapter.on("delete-room", (room) => {
   delete gameRooms[room];
-  delete gameRoomsPrivate[room]
+  delete gameRoomsPrivate[room];
 });
 
 console.log(`Server listening on port ${port}`);
