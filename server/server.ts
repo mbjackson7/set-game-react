@@ -212,6 +212,7 @@ io.on("connection", (socket) => {
                   io.to(roomId).emit("game-over", gameRooms[roomId]);
                   return;
                 }, 3000);
+                break;
               }
               const newCards = gameRoomsPrivate[roomId].deck.slice(0, 3);
               gameRoomsPrivate[roomId].deck =
