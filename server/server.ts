@@ -37,6 +37,12 @@ function initializeGame(roomId) {
   let startingCards = newDeck.slice(0, 12);
   newDeck = newDeck.slice(12);
 
+  while (!isSetOnTable(startingCards)) {
+    const newCards = newDeck.slice(0, 3);
+    newDeck = newDeck.slice(3);
+    startingCards = startingCards.concat(newCards);
+  }
+
   gameRooms[roomId] = {
     gameState: "waiting",
     scores: {},
@@ -49,6 +55,7 @@ function initializeGame(roomId) {
   gameRoomsPrivate[roomId] = {
     deck: newDeck,
     timerID: "",
+    deleteTimerID: "",
   };
 }
 
@@ -252,8 +259,11 @@ io.on("connection", (socket) => {
 
 // Delete room when all users leave to save memory
 io.of("/").adapter.on("delete-room", (room) => {
-  delete gameRooms[room];
-  delete gameRoomsPrivate[room];
+  console.log("deleting room", room);
+  gameRoomsPrivate[room].deleteTimerID = setTimeout(() => {
+    delete gameRooms[room];
+    delete gameRoomsPrivate[room];
+  }, 60000 * 12);
 });
 
 console.log(`Server listening on port ${port}`);
