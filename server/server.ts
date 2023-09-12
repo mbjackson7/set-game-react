@@ -104,6 +104,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("join-room", (roomId, userId) => {
+    if (gameRoomsPrivate[roomId] !== undefined && gameRoomsPrivate[roomId].deleteTimerID !== "") {
+      clearTimeout(gameRoomsPrivate[roomId].deleteTimerID);
+      gameRoomsPrivate[roomId].deleteTimerID = "";
+    }
+
     socket.join(roomId);
     socket.onAny((eventName, ...args) => {
       console.log(userId, "->", eventName, args);
