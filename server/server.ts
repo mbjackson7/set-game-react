@@ -266,6 +266,9 @@ io.on("connection", (socket) => {
 // Delete room when all users leave to save memory
 io.of("/").adapter.on("delete-room", (room) => {
   console.log("deleting room", room);
+  if (gameRoomsPrivate[room] === undefined) {
+    return;
+  }
   gameRoomsPrivate[room].deleteTimerID = setTimeout(() => {
     delete gameRooms[room];
     delete gameRoomsPrivate[room];
