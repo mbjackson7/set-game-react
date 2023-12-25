@@ -14,7 +14,7 @@ const shadings = ["solid", "striped", "outlined"];
 var gameRooms = {};
 var gameRoomsPrivate = {};
 
-function initializeGame(roomId) {
+function initializeGame(roomId, existingPlayers = []) {
   // create a deck
   console.log("initializing game for room", roomId);
   let newDeck = [];
@@ -46,11 +46,15 @@ function initializeGame(roomId) {
   gameRooms[roomId] = {
     gameState: "waiting",
     scores: {},
-    players: [],
+    players: existingPlayers,
     onTable: startingCards,
     selected: [],
     overflowLevel: 0,
   };
+
+  for (let i = 0; i < existingPlayers.length; i++) {
+    gameRooms[roomId].scores[existingPlayers[i]] = 0;
+  }
 
   gameRoomsPrivate[roomId] = {
     deck: newDeck,
@@ -245,7 +249,7 @@ io.on("connection", (socket) => {
 
     socket.on("play-again", () => {
       console.log("playing again in room", roomId);
-      initializeGame(roomId);
+      initializeGame(roomId, gameRooms[roomId].players);
       io.to(roomId).emit("game-started", gameRooms[roomId]);
     });
 
