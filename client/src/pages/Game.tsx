@@ -139,9 +139,9 @@ export default function Game() {
     }, 2500)
   }
    
-  const drawThree = () => {
-    socket.emit('draw-three')
-  }
+  //const drawThree = () => {
+  //  socket.emit('draw-three')
+  //}
 
   const beginGame = () => {
     socket.emit('start-game')
