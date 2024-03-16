@@ -1,6 +1,11 @@
-import { createHashRouter, RouterProvider, Route, createRoutesFromElements } from 'react-router-dom';
-import Game from './pages/Game';
-import Menu from './pages/Menu';
+import {
+  createHashRouter,
+  RouterProvider,
+  Route,
+  createRoutesFromElements,
+} from "react-router-dom";
+import Game from "./pages/Game";
+import Menu from "./pages/Menu";
 
 const router = createHashRouter(
   createRoutesFromElements(
@@ -10,7 +15,7 @@ const router = createHashRouter(
       <Route path="*" element={<div>404</div>} />
     </Route>
   )
-)
+);
 
 function App() {
   return (

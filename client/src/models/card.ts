@@ -1,11 +1,11 @@
 export interface CardProps {
-    attributes: CardAttributes;
-    selected: boolean;
+  attributes: CardAttributes;
+  selected: boolean;
 }
 
 export interface CardAttributes {
-    shape: string;
-    color: string;
-    number: number;
-    shading: string;
+  shape: string;
+  color: string;
+  number: number;
+  shading: string;
 }
