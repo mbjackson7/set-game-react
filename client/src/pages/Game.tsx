@@ -304,6 +304,9 @@ export default function Game() {
                     key={index}
                     attributes={card}
                     selected={selected.includes(index)}
+                    disabled={
+                      gameState !== "in-progress" && gameState !== userName
+                    }
                   />
                 </button>
               );
