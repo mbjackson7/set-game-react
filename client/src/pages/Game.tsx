@@ -273,7 +273,10 @@ export default function Game() {
               <h1>Scores</h1>
               <ul className="flex flex-row gap-5">
                 {players.map((player) => (
-                  <li key={player}>
+                  <li
+                    key={player}
+                    className={gameState === player ? "text-yellow-400" : ""}
+                  >
                     {player}: {scores[player]}
                   </li>
                 ))}
