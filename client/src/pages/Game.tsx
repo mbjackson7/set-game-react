@@ -24,17 +24,11 @@ export default function Game() {
   const timerID = useRef<NodeJS.Timeout | null>(null);
   const messageTimeID = useRef<NodeJS.Timeout | null>(null);
 
-
-
-  useEffect(() => {
-    function updateState(state: GameState) {
-      setOnTable(state.onTable);
-      setScores(state.scores);
-      setGameState(state.gameState);
-      setOverflowLevel(state.overflowLevel);
-      setSelected(state.selected);
-      setPlayers(state.players);
-    }
+  const [drawThreeButton, setDrawThreeButton] = useState(false);
+  const [timeLimit, setTimeLimit] = useState(10);
+  const [setPoints, setSetPoints] = useState(1);
+  const [timeOutPenalty, setTimeOutPenalty] = useState(1);
+  const [wrongSetPenalty, setWrongSetPenalty] = useState(1);
     socket.disconnect();
     socket.connect();
     socket.emit("join-room", room, userName);
@@ -166,7 +160,13 @@ export default function Game() {
   //}
 
   const beginGame = () => {
-    socket.emit("start-game");
+    socket.emit("start-game", {
+      drawThree: drawThreeButton,
+      timeLimit: timeLimit,
+      setPoints: setPoints,
+      timeOutPenalty: timeOutPenalty,
+      wrongSetPenalty: wrongSetPenalty,
+    });
   };
 
   const select = (index: number) => {
@@ -207,6 +207,49 @@ export default function Game() {
               <li key={player}>{player}</li>
             ))}
           </ul>
+          <br />
+          <h1>Game Settings</h1>
+          <div className="flex flex-col items-start">
+            <label>Set Time Limit: </label>
+            <input
+              type="number"
+              value={timeLimit}
+              min="1"
+              max="60"
+              onChange={(e) => setTimeLimit(parseInt(e.target.value))}
+            />
+            <label>Points Per Set: </label>
+            <input
+              type="number"
+              value={setPoints}
+              min="1"
+              max="9"
+              onChange={(e) => setSetPoints(parseInt(e.target.value))}
+            />
+            <label>Time Out Points Penalty: </label>
+            <input
+              type="number"
+              value={timeOutPenalty}
+              min="1"
+              max="9"
+              onChange={(e) => setTimeOutPenalty(parseInt(e.target.value))}
+            />
+            <label>Wrong Set Points Penalty: </label>
+            <input
+              type="number"
+              value={wrongSetPenalty}
+              min="1"
+              max="9"
+              onChange={(e) => setWrongSetPenalty(parseInt(e.target.value))}
+            />
+            <label>Allow Draw Three: </label>
+            <input
+              type="checkbox"
+              checked={drawThreeButton}
+              onChange={() => setDrawThreeButton(!drawThreeButton)}
+            />
+          </div>
+          <br />
           <div className="flex flex-row gap-4 p-4">
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"

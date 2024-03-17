@@ -144,11 +144,15 @@ io.on("connection", (socket) => {
     io.to(roomId).emit("user-connected", userId, gameRooms[roomId]);
 
     // User starts game
-    socket.on("start-game", () => {
-      console.log("game started for room", roomId);
+    socket.on("start-game", (config) => {
       if (gameRooms[roomId] === undefined) {
         return;
       }
+      gameRooms[roomId].drawThree = config?.drawThree ?? false;
+      gameRooms[roomId].timeLimit = config?.timeLimit ?? 10;
+      gameRoomsPrivate[roomId].setPoints = config?.setPoints ?? 1;
+      gameRoomsPrivate[roomId].timeOutPenalty = config?.timeOutPenalty ?? 1;
+      gameRoomsPrivate[roomId].wrongSetPenalty = config?.wrongSetPenalty ?? 1;
       gameRooms[roomId].gameState = "in-progress";
       io.to(roomId).emit("game-started", gameRooms[roomId]);
     });
@@ -161,11 +165,11 @@ io.on("connection", (socket) => {
         gameRoomsPrivate[roomId].timerID = setTimeout(() => {
           if (gameRooms[roomId].gameState === userId) {
             gameRooms[roomId].gameState = "in-progress";
-            gameRooms[roomId].scores[userId] -= 1;
+            gameRooms[roomId].scores[userId] -= gameRoomsPrivate[roomId].timeOutPenalty;
             gameRooms[roomId].selected = [];
             io.to(roomId).emit("set-not-found", gameRooms[roomId], userId);
           }
-        }, 10000);
+        }, gameRooms[roomId].timeLimit * 1000);
       }
     });
 
@@ -194,7 +198,7 @@ io.on("connection", (socket) => {
           );
           console.log(cards);
           if (isSet(cards)) {
-            gameRooms[roomId]["scores"][userId] += 1;
+            gameRooms[roomId]["scores"][userId] += gameRoomsPrivate[roomId].setPoints;
             if (gameRooms[roomId].onTable.length <= 12) {
               gameRooms[roomId].selected.forEach((index) => {
                 gameRooms[roomId].onTable[index] =
