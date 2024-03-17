@@ -323,7 +323,7 @@ export default function Game() {
                   <StylizedButton
                     color="bg-red-800"
                     onClick={drawThree}
-                    disabled={gameState !== "in-progress"}
+                    disabled={gameState !== "in-progress" || overflowLevel >= 2}
                   >
                     Draw 3
                   </StylizedButton>
