@@ -10,6 +10,8 @@ import Timer from "../components/Timer";
 import StylizedButton from "../components/StylizedButton";
 import GameButtons from "../components/GameButtons";
 import Board from "../components/Board";
+import Scoreboard from "../components/Scoreboard";
+import ConfigMenu from "../components/ConfigMenu";
 
 export default function Game() {
   const [gameState, setGameState] = useState<string>("waiting");
@@ -197,71 +199,22 @@ export default function Game() {
             ))}
           </ul>
           <br />
-          <h1>Game Settings</h1>
-          <div className="flex flex-col items-start">
-            <label>Set Time Limit: </label>
-            <input
-              type="number"
-              value={timeLimit}
-              onChange={(e) => {
-                if (
-                  (parseInt(e.target.value) > 0 &&
-                    parseInt(e.target.value) <= 60) ||
-                  e.target.value === ""
-                ) {
-                  setTimeLimit(parseInt(e.target.value));
-                }
-              }}
-            />
-            <label>Points Per Set: </label>
-            <input
-              type="number"
-              value={setPoints}
-              onChange={(e) => {
-                if (
-                  (parseInt(e.target.value) > 0 &&
-                    parseInt(e.target.value) <= 9) ||
-                  e.target.value === ""
-                ) {
-                  setSetPoints(parseInt(e.target.value));
-                }
-              }}
-            />
-            <label>Time Out Points Penalty: </label>
-            <input
-              type="number"
-              value={timeOutPenalty}
-              onChange={(e) => {
-                if (
-                  (parseInt(e.target.value) >= 0 &&
-                    parseInt(e.target.value) <= 9) ||
-                  e.target.value === ""
-                ) {
-                  setTimeOutPenalty(parseInt(e.target.value));
-                }
-              }}
-            />
-            <label>Wrong Set Points Penalty: </label>
-            <input
-              type="number"
-              value={wrongSetPenalty}
-              onChange={(e) => {
-                if (
-                  (parseInt(e.target.value) >= 0 &&
-                    parseInt(e.target.value) <= 9) ||
-                  e.target.value === ""
-                ) {
-                  setWrongSetPenalty(parseInt(e.target.value));
-                }
-              }}
-            />
-            <label>Allow Draw Three: </label>
-            <input
-              type="checkbox"
-              checked={allowDrawThree}
-              onChange={() => setAllowDrawThree(!allowDrawThree)}
-            />
-          </div>
+          <ConfigMenu 
+            config={{
+              timeLimit,
+              setPoints,
+              timeOutPenalty,
+              wrongSetPenalty,
+              allowDrawThree
+            }}
+            setters={{
+              setTimeLimit,
+              setSetPoints,
+              setTimeOutPenalty,
+              setWrongSetPenalty,
+              setAllowDrawThree
+            }}
+          />
           <br />
           <div className="flex flex-row gap-4 p-4">
             <StylizedButton color="bg-blue-500" onClick={beginGame}>
@@ -271,21 +224,11 @@ export default function Game() {
         </div>
       ) : (
         // game is in progress
-        <>
-          <div className="flex flex-row gap-4 p-1">
-            <div className="text-center">
-              <h1>Scores</h1>
-              <ul className="flex flex-row gap-5">
-                {players.map((player) => (
-                  <li
-                    key={player}
-                    className={gameState === player ? "text-yellow-400" : ""}
-                  >
-                    {player}: {scores[player]}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <Scoreboard
+              players={players}
+              scores={scores}
+              gameState={gameState}
+            />
             <Timer time={timer} />
           </div>
           <Board
