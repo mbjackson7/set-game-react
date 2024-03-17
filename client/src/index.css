@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  @font-face {
+    font-family: "7Segment";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(/fonts/7segment.woff) format("woff");
+  }
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
