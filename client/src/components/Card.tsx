@@ -1,7 +1,6 @@
 import { CardProps } from "../models/card";
 
-export default function Card(props: CardProps) {
-  const { attributes, selected } = props;
+export default function Card({ attributes, selected, disabled, bgColor }: CardProps) {
   const { shape, color, number, shading } = attributes;
   let fillOpacity = 0;
   const renderShapes = () => {
@@ -65,9 +64,23 @@ export default function Card(props: CardProps) {
 
   return (
     <div
-      className={`bg-white h-full w-full flex flex-col items-center justify-center rounded-2xl p-1 ${
-        selected ? "border-yellow-600 border-4 bg-yellow-200" : "border"
-      } shadow-2xl`}
+      className={`
+        h-full
+        w-full
+        flex
+        flex-col
+        items-center
+        justify-center
+        rounded-2xl
+        p-1
+        border
+        ${selected ? 
+            "bg-yellow-200 border-yellow-600 border-4" : 
+            disabled ? 
+              "bg-gray-300" : 
+              bgColor ? bgColor : 'bg-white'
+        }
+      `}
     >
       {renderShapes()}
     </div>
