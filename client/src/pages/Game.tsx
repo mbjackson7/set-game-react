@@ -5,6 +5,7 @@ import { GameState } from "../models/gameState";
 import { socket } from "../socket";
 import { useParams, useNavigate } from "react-router-dom";
 import MessageModal from "../components/MessageModal";
+import Timer from "../components/Timer";
 
 export default function Game() {
   const [gameState, setGameState] = useState<string>("waiting");
@@ -231,9 +232,7 @@ export default function Game() {
                 ))}
               </ul>
             </div>
-            <div className="w-4">
-              {timer > 0 && <h1 className="text-3xl py-1">{timer}</h1>}
-            </div>
+            <Timer time={timer} />
           </div>
           <div
             className={`grid grid-rows-3 grid-cols-${
