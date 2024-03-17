@@ -29,10 +29,26 @@ export default function Game() {
   const [setPoints, setSetPoints] = useState(1);
   const [timeOutPenalty, setTimeOutPenalty] = useState(1);
   const [wrongSetPenalty, setWrongSetPenalty] = useState(1);
+
+  function updateState(state: GameState) {
+    setOnTable(state.onTable);
+    setScores(state.scores);
+    setGameState(state.gameState);
+    setOverflowLevel(state.overflowLevel);
+    setSelected(state.selected);
+    setPlayers(state.players);
+    console.log(state);
+    setDrawThreeButton(state.drawThree ?? false);
+    setTimeLimit(state.timeLimit ?? 10);
+  }
+
+  useEffect(() => {
     socket.disconnect();
     socket.connect();
     socket.emit("join-room", room, userName);
+  }, [room, userName]);
 
+  useEffect(() => {
     socket.on("already-in-room", () => {
       console.log("already in room");
       navigate("/");
@@ -53,7 +69,7 @@ export default function Game() {
         sendMessage({ text: player + " called set!", color: "green" });
       }
       setGameState(player);
-      setTimer(10);
+      setTimer(timeLimit);
     });
 
     socket.on("card-selected", (index: number) => {
@@ -89,7 +105,7 @@ export default function Game() {
     socket.on("game-over", (state: GameState) => {
       clearTimer();
       console.log("Game over pt 1");
-      let winner = Object.keys(state.scores).reduce(function (a, b) {
+      const winner = Object.keys(state.scores).reduce(function (a, b) {
         return state.scores[a] > state.scores[b] ? a : b;
       });
       console.log(`Game Over, ${winner} wins in ${room}!`);
@@ -120,7 +136,7 @@ export default function Game() {
       socket.off("game-over");
       socket.off("user-disconnected");
     };
-  }, []);
+  }, [timeLimit, room, userName, navigate]);
 
   useEffect(() => {
     timer > 0 &&
@@ -155,9 +171,9 @@ export default function Game() {
     }, 2500);
   }
 
-  //const drawThree = () => {
-  //  socket.emit('draw-three')
-  //}
+  const drawThree = () => {
+    socket.emit("draw-three");
+  };
 
   const beginGame = () => {
     socket.emit("start-game", {

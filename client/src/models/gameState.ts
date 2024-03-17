@@ -7,4 +7,6 @@ export interface GameState {
   onTable: CardAttributes[];
   selected: number[];
   overflowLevel: number;
+  drawThree?: boolean;
+  timeLimit?: number;
 }
