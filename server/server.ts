@@ -118,10 +118,10 @@ io.on("connection", (socket) => {
 
     socket.join(roomId);
     socket.onAny((eventName, ...args) => {
-      console.log(userId, "->", eventName, args);
+      console.log(`${roomId}:`, userId, "->", eventName, args);
     });
     socket.onAnyOutgoing((eventName) => {
-      console.log(userId, "<-", eventName);
+      console.log(`${roomId}:`, userId, "<-", eventName);
     });
     if (gameRooms[roomId] === undefined) {
       console.log("initializing game for room", roomId);
