@@ -205,14 +205,6 @@ export default function Game() {
   return (
     <div className="h-[calc(100dvh)] w-screen flex flex-col items-center justify-between p-10">
       {message.text && <MessageModal message={message} />}
-      {gameState == "game-over" && (
-        <button
-          onClick={playAgain}
-          className="fixed bottom-40 text-3xl bg-purple-800 p-5 border z-50"
-        >
-          Play Again
-        </button>
-      )}
       {gameState === "waiting" ? (
         <div className="h-full w-full flex flex-col items-center justify-center">
           <h1>Room</h1>
@@ -267,12 +259,9 @@ export default function Game() {
           </div>
           <br />
           <div className="flex flex-row gap-4 p-4">
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              onClick={beginGame}
-            >
+            <StylizedButton color="bg-blue-500" onClick={beginGame}>
               Start Game
-            </button>
+            </StylizedButton>
           </div>
         </div>
       ) : (
@@ -317,13 +306,31 @@ export default function Game() {
             })}
           </div>
           <div className="flex flex-row gap-4 p-4">
-            {/*<button className="bg-red-800 text-white font-bold py-2 w-24 rounded" onClick={drawThree}>Draw 3</button>*/}
-            <button
-              className="bg-green-800 text-white font-bold py-2 w-24 rounded"
-              onClick={callSet}
-            >
-              Set!
-            </button>
+            {gameState == "game-over" ? (
+              <StylizedButton color="bg-purple-800" onClick={playAgain}>
+                Play Again
+              </StylizedButton>
+            ) : (
+              <>
+                {drawThreeButton && (
+                  <StylizedButton
+                    color="bg-red-800"
+                    onClick={drawThree}
+                    disabled={gameState !== "in-progress"}
+                  >
+                    Draw 3
+                  </StylizedButton>
+                )}
+
+                <StylizedButton
+                  color="bg-green-800"
+                  onClick={callSet}
+                  disabled={gameState !== "in-progress"}
+                >
+                  Set!
+                </StylizedButton>
+              </>
+            )}
           </div>
         </>
       )}
