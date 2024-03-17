@@ -307,6 +307,9 @@ export default function Game() {
                   onClick={() => {
                     select(index);
                   }}
+                  disabled={
+                    gameState !== userName
+                  }
                 >
                   <Card
                     key={index}
