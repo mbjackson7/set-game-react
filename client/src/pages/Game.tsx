@@ -203,7 +203,7 @@ export default function Game() {
   };
 
   return (
-    <div className="h-[calc(100dvh)] w-screen flex flex-col items-center justify-between px-10 py-4">
+    <div className="h-[calc(100dvh)] w-screen flex flex-col items-center justify-between p-10">
       {message.text && <MessageModal message={message} />}
       {gameState == "game-over" && (
         <button
