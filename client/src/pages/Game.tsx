@@ -8,6 +8,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import MessageModal from "../components/MessageModal";
 import Timer from "../components/Timer";
 import StylizedButton from "../components/StylizedButton";
+import GameButtons from "../components/GameButtons";
+import Board from "../components/Board";
 
 export default function Game() {
   const [gameState, setGameState] = useState<string>("waiting");
@@ -19,13 +21,12 @@ export default function Game() {
   const [players, setPlayers] = useState<string[]>([userName ? userName : ""]);
   const [scores, setScores] = useState<{ [key: string]: number }>({});
   const navigate = useNavigate();
-  const rotate = window.innerWidth < window.innerHeight ? "rotate-90" : "";
   const [message, setMessage] = useState<Message>({ text: "", color: "" });
   const [timer, setTimer] = useState<number>(0);
   const timerID = useRef<NodeJS.Timeout | null>(null);
   const messageTimeID = useRef<NodeJS.Timeout | null>(null);
 
-  const [drawThreeButton, setDrawThreeButton] = useState(false);
+  const [allowDrawThree, setAllowDrawThree] = useState(false);
   const [timeLimit, setTimeLimit] = useState(10);
   const [setPoints, setSetPoints] = useState(1);
   const [timeOutPenalty, setTimeOutPenalty] = useState(1);
@@ -39,7 +40,7 @@ export default function Game() {
     setSelected(state.selected);
     setPlayers(state.players);
     console.log(state);
-    setDrawThreeButton(state.drawThree ?? false);
+    setAllowDrawThree(state.drawThree ?? false);
     setTimeLimit(state.timeLimit ?? 10);
   }
 
@@ -172,35 +173,14 @@ export default function Game() {
     }, 2500);
   }
 
-  const drawThree = () => {
-    socket.emit("draw-three");
-  };
-
   const beginGame = () => {
     socket.emit("start-game", {
-      drawThree: drawThreeButton,
+      drawThree: allowDrawThree,
       timeLimit: timeLimit,
       setPoints: setPoints,
       timeOutPenalty: timeOutPenalty,
       wrongSetPenalty: wrongSetPenalty,
     });
-  };
-
-  const select = (index: number) => {
-    if (gameState === userName) {
-      socket.emit("select", index);
-    }
-  };
-
-  const callSet = () => {
-    if (gameState === "in-progress") {
-      setGameState(userName ? userName : "");
-      socket.emit("call-set");
-    }
-  };
-
-  const playAgain = () => {
-    socket.emit("play-again");
   };
 
   return (
@@ -224,8 +204,12 @@ export default function Game() {
               type="number"
               value={timeLimit}
               onChange={(e) => {
-                if (parseInt(e.target.value) > 0 && parseInt(e.target.value) <= 60 || e.target.value === "") {
-                  setTimeLimit(parseInt(e.target.value))
+                if (
+                  (parseInt(e.target.value) > 0 &&
+                    parseInt(e.target.value) <= 60) ||
+                  e.target.value === ""
+                ) {
+                  setTimeLimit(parseInt(e.target.value));
                 }
               }}
             />
@@ -234,8 +218,12 @@ export default function Game() {
               type="number"
               value={setPoints}
               onChange={(e) => {
-                if (parseInt(e.target.value) > 0 && parseInt(e.target.value) <= 9 || e.target.value === "") {
-                  setSetPoints(parseInt(e.target.value))
+                if (
+                  (parseInt(e.target.value) > 0 &&
+                    parseInt(e.target.value) <= 9) ||
+                  e.target.value === ""
+                ) {
+                  setSetPoints(parseInt(e.target.value));
                 }
               }}
             />
@@ -244,8 +232,12 @@ export default function Game() {
               type="number"
               value={timeOutPenalty}
               onChange={(e) => {
-                if (parseInt(e.target.value) >= 0 && parseInt(e.target.value) <= 9 || e.target.value === "") {
-                  setTimeOutPenalty(parseInt(e.target.value))
+                if (
+                  (parseInt(e.target.value) >= 0 &&
+                    parseInt(e.target.value) <= 9) ||
+                  e.target.value === ""
+                ) {
+                  setTimeOutPenalty(parseInt(e.target.value));
                 }
               }}
             />
@@ -254,16 +246,20 @@ export default function Game() {
               type="number"
               value={wrongSetPenalty}
               onChange={(e) => {
-                if (parseInt(e.target.value) >= 0 && parseInt(e.target.value) <= 9 || e.target.value === "") {
-                  setWrongSetPenalty(parseInt(e.target.value))
+                if (
+                  (parseInt(e.target.value) >= 0 &&
+                    parseInt(e.target.value) <= 9) ||
+                  e.target.value === ""
+                ) {
+                  setWrongSetPenalty(parseInt(e.target.value));
                 }
               }}
             />
             <label>Allow Draw Three: </label>
             <input
               type="checkbox"
-              checked={drawThreeButton}
-              onChange={() => setDrawThreeButton(!drawThreeButton)}
+              checked={allowDrawThree}
+              onChange={() => setAllowDrawThree(!allowDrawThree)}
             />
           </div>
           <br />
@@ -276,7 +272,7 @@ export default function Game() {
       ) : (
         // game is in progress
         <>
-          <div className="flex flex-row gap-4 p-4">
+          <div className="flex flex-row gap-4 p-1">
             <div className="text-center">
               <h1>Scores</h1>
               <ul className="flex flex-row gap-5">
@@ -292,64 +288,22 @@ export default function Game() {
             </div>
             <Timer time={timer} />
           </div>
-          <div
-            className={`grid grid-rows-3 grid-cols-${
-              overflowLevel + 4
-            } grid-flow-col gap-2 h-5/6 max-h-[96vw] max-w-[90vw] aspect-${
-              rotate ? (overflowLevel ? 5 : 4) : overflowLevel + 4
-            }/4 ${rotate}`}
-          >
-            {onTable.map((card, index) => {
-              return (
-                <button
-                  key={index}
-                  className="flex justify-center h-full aspect-5/7"
-                  onClick={() => {
-                    select(index);
-                  }}
-                  disabled={
-                    gameState !== userName
-                  }
-                >
-                  <Card
-                    key={index}
-                    attributes={card}
-                    selected={selected.includes(index)}
-                    disabled={
-                      gameState !== "in-progress" && gameState !== userName
-                    }
-                  />
-                </button>
-              );
-            })}
-          </div>
-          <div className="flex flex-row gap-4 p-4">
-            {gameState == "game-over" ? (
-              <StylizedButton color="bg-purple-800" onClick={playAgain}>
-                Play Again
-              </StylizedButton>
-            ) : (
-              <>
-                {drawThreeButton && (
-                  <StylizedButton
-                    color="bg-red-800"
-                    onClick={drawThree}
-                    disabled={gameState !== "in-progress" || overflowLevel >= 2}
-                  >
-                    Draw 3
-                  </StylizedButton>
-                )}
-
-                <StylizedButton
-                  color="bg-green-800"
-                  onClick={callSet}
-                  disabled={gameState !== "in-progress"}
-                >
-                  Set!
-                </StylizedButton>
-              </>
-            )}
-          </div>
+          <Board
+            socket={socket}
+            onTable={onTable}
+            selected={selected}
+            gameState={gameState}
+            userName={userName ?? ""}
+            overflowLevel={overflowLevel}
+          />
+          <GameButtons
+            socket={socket}
+            gameState={gameState}
+            setGameState={setGameState}
+            userName={userName ?? ""}
+            overflowLevel={overflowLevel}
+            allowDrawThree={allowDrawThree}
+          />
         </>
       )}
     </div>
