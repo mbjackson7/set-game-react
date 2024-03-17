@@ -36,11 +36,13 @@ function initializeGame(roomId, existingPlayers = []) {
   newDeck.sort(() => Math.random() - 0.5);
   let startingCards = newDeck.slice(0, 12);
   newDeck = newDeck.slice(12);
+  let overflowLevel = 0;
 
   while (!isSetOnTable(startingCards)) {
     const newCards = newDeck.slice(0, 3);
     newDeck = newDeck.slice(3);
     startingCards = startingCards.concat(newCards);
+    overflowLevel += 1;
   }
 
   gameRooms[roomId] = {
@@ -49,7 +51,7 @@ function initializeGame(roomId, existingPlayers = []) {
     players: existingPlayers,
     onTable: startingCards,
     selected: [],
-    overflowLevel: 0,
+    overflowLevel: overflowLevel,
   };
 
   for (let i = 0; i < existingPlayers.length; i++) {
