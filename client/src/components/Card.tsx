@@ -10,7 +10,7 @@ export default function Card({ attributes, selected, disabled, bgColor }: CardPr
         fillOpacity = 1;
         break;
       case "striped":
-        fillOpacity = 0.3;
+        fillOpacity = 0.45;
     }
 
     const style = `w-full h-[30%] stroke-${color}-600 stroke-8 fill-${color}-600`;
