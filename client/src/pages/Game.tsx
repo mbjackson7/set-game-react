@@ -7,6 +7,7 @@ import { socket } from "../socket";
 import { useParams, useNavigate } from "react-router-dom";
 import MessageModal from "../components/MessageModal";
 import Timer from "../components/Timer";
+import StylizedButton from "../components/StylizedButton";
 
 export default function Game() {
   const [gameState, setGameState] = useState<string>("waiting");
