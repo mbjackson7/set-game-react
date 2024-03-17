@@ -3,18 +3,18 @@ import { CardProps } from "../models/card";
 export default function Card(props: CardProps) {
   const { attributes, selected } = props;
   const { shape, color, number, shading } = attributes;
+  let fillOpacity = 0;
   const renderShapes = () => {
-    let iterator = [];
-    let colorFill = `stroke-${color}-600 stroke-8`;
+    const iterator = [];
     switch (shading) {
       case "solid":
-        colorFill += ` fill-${color}-600`;
+        fillOpacity = 1;
         break;
       case "striped":
-        colorFill += ` fill-${color}-300`;
+        fillOpacity = 0.3;
     }
 
-    const style = `w-full h-[30%] ${colorFill}`;
+    const style = `w-full h-[30%] stroke-${color}-600 stroke-8 fill-${color}-600`;
     for (let i = 0; i < number; i++) {
       switch (shape) {
         case "oval":
@@ -22,6 +22,7 @@ export default function Card(props: CardProps) {
             <svg
               key={i}
               className={style}
+              fillOpacity={fillOpacity}
               viewBox="0 0 120 80"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -35,6 +36,7 @@ export default function Card(props: CardProps) {
             <svg
               key={i}
               className={style}
+              fillOpacity={fillOpacity}
               viewBox="0 0 120 80"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -48,6 +50,7 @@ export default function Card(props: CardProps) {
             <svg
               key={i}
               className={style}
+              fillOpacity={fillOpacity}
               viewBox="0 0 120 80"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
