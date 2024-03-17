@@ -223,33 +223,41 @@ export default function Game() {
             <input
               type="number"
               value={timeLimit}
-              min="1"
-              max="60"
-              onChange={(e) => setTimeLimit(parseInt(e.target.value))}
+              onChange={(e) => {
+                if (parseInt(e.target.value) > 0 && parseInt(e.target.value) <= 60 || e.target.value === "") {
+                  setTimeLimit(parseInt(e.target.value))
+                }
+              }}
             />
             <label>Points Per Set: </label>
             <input
               type="number"
               value={setPoints}
-              min="1"
-              max="9"
-              onChange={(e) => setSetPoints(parseInt(e.target.value))}
+              onChange={(e) => {
+                if (parseInt(e.target.value) > 0 && parseInt(e.target.value) <= 9 || e.target.value === "") {
+                  setSetPoints(parseInt(e.target.value))
+                }
+              }}
             />
             <label>Time Out Points Penalty: </label>
             <input
               type="number"
               value={timeOutPenalty}
-              min="1"
-              max="9"
-              onChange={(e) => setTimeOutPenalty(parseInt(e.target.value))}
+              onChange={(e) => {
+                if (parseInt(e.target.value) >= 0 && parseInt(e.target.value) <= 9 || e.target.value === "") {
+                  setTimeOutPenalty(parseInt(e.target.value))
+                }
+              }}
             />
             <label>Wrong Set Points Penalty: </label>
             <input
               type="number"
               value={wrongSetPenalty}
-              min="1"
-              max="9"
-              onChange={(e) => setWrongSetPenalty(parseInt(e.target.value))}
+              onChange={(e) => {
+                if (parseInt(e.target.value) >= 0 && parseInt(e.target.value) <= 9 || e.target.value === "") {
+                  setWrongSetPenalty(parseInt(e.target.value))
+                }
+              }}
             />
             <label>Allow Draw Three: </label>
             <input
