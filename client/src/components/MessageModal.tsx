@@ -1,5 +1,6 @@
-export default function MessageModal(props: any) {
-  const message = props.message;
+import { MessageModalProps } from "../models/messageModal";
+
+export default function MessageModal({ message }: MessageModalProps) {
   return (
     <div className="fixed h-full w-full flex justify-center items-center p-20 z-50">
       <div

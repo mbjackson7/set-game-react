@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import Card from "../components/Card";
 import { CardAttributes } from "../models/card";
 import { GameState } from "../models/gameState";
+import { Message } from "../models/messageModal";
 import { socket } from "../socket";
 import { useParams, useNavigate } from "react-router-dom";
 import MessageModal from "../components/MessageModal";
@@ -23,10 +24,7 @@ export default function Game() {
   const timerID = useRef<NodeJS.Timeout | null>(null);
   const messageTimeID = useRef<NodeJS.Timeout | null>(null);
 
-  interface Message {
-    text: string;
-    color: string;
-  }
+
 
   useEffect(() => {
     function updateState(state: GameState) {
