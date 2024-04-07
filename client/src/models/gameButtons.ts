@@ -7,4 +7,6 @@ export interface GameButtonsProps {
   userName: string;
   overflowLevel: number;
   allowDrawThree: boolean;
+  timer: number;
+  className?: string;
 }

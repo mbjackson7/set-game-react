@@ -8,4 +8,5 @@ export interface BoardProps {
   gameState: string;
   userName: string;
   overflowLevel: number;
+  className?: string;
 }

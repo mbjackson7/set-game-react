@@ -1,7 +1,8 @@
 import StylizedButton from "./StylizedButton";
+import Timer from "./Timer";
 import { GameButtonsProps } from "../models/gameButtons";
 
-export default function GameButtons({socket, gameState, setGameState, userName, overflowLevel, allowDrawThree}: GameButtonsProps) {
+export default function GameButtons({socket, gameState, setGameState, userName, overflowLevel, allowDrawThree, timer}: GameButtonsProps) {
   const drawThree = () => {
     socket.emit("draw-three");
   };
@@ -34,7 +35,7 @@ export default function GameButtons({socket, gameState, setGameState, userName, 
                     Draw 3
                   </StylizedButton>
                 )}
-
+                <Timer time={timer} className="col-start-1" />
                 <StylizedButton
                   color="bg-green-800"
                   onClick={callSet}

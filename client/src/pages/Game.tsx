@@ -1,12 +1,10 @@
 import { useEffect, useState, useRef } from "react";
-import Card from "../components/Card";
 import { CardAttributes } from "../models/card";
 import { GameState } from "../models/gameState";
 import { Message } from "../models/messageModal";
 import { socket } from "../socket";
 import { useParams, useNavigate } from "react-router-dom";
 import MessageModal from "../components/MessageModal";
-import Timer from "../components/Timer";
 import StylizedButton from "../components/StylizedButton";
 import GameButtons from "../components/GameButtons";
 import Board from "../components/Board";
@@ -27,7 +25,7 @@ export default function Game() {
   const [timer, setTimer] = useState<number>(0);
   const timerID = useRef<NodeJS.Timeout | null>(null);
   const messageTimeID = useRef<NodeJS.Timeout | null>(null);
-
+  const vertical = window.innerWidth < window.innerHeight;
   const [allowDrawThree, setAllowDrawThree] = useState(false);
   const [timeLimit, setTimeLimit] = useState(10);
   const [setPoints, setSetPoints] = useState(1);
@@ -186,10 +184,10 @@ export default function Game() {
   };
 
   return (
-    <div className="h-[calc(100dvh)] w-screen flex flex-col items-center justify-between p-10">
+    <>
       {message.text && <MessageModal message={message} />}
       {gameState === "waiting" ? (
-        <div className="h-full w-full flex flex-col items-center justify-center">
+        <div className="h-[calc(100dvh)] w-screen flex flex-col items-center justify-between p-10">
           <h1>Room</h1>
           <h2>{room}</h2>
           <h1>Current Players:</h1>
@@ -199,20 +197,20 @@ export default function Game() {
             ))}
           </ul>
           <br />
-          <ConfigMenu 
+          <ConfigMenu
             config={{
               timeLimit,
               setPoints,
               timeOutPenalty,
               wrongSetPenalty,
-              allowDrawThree
+              allowDrawThree,
             }}
             setters={{
               setTimeLimit,
               setSetPoints,
               setTimeOutPenalty,
               setWrongSetPenalty,
-              setAllowDrawThree
+              setAllowDrawThree,
             }}
           />
           <br />
@@ -224,31 +222,37 @@ export default function Game() {
         </div>
       ) : (
         // game is in progress
-            <Scoreboard
-              players={players}
-              scores={scores}
+        <div className={`h-[calc(100dvh)] w-screen ${vertical ? "flex flex-col justify-between" : "grid grid-cols-6 grid-rows-1"} `}>
+          <Scoreboard
+            players={players}
+            scores={scores}
+            gameState={gameState}
+            className={`${!vertical ? "col-start-1" : "max-h-[20vh]"} min-h-60 max-w-full p-4`}
+          />
+          <div className={`flex flex-col items-center h-full justify-between gap-4 col-start-2 col-span-4`}>
+            <div></div>
+            <Board
+              socket={socket}
+              onTable={onTable}
+              selected={selected}
               gameState={gameState}
+              userName={userName ?? ""}
+              overflowLevel={overflowLevel}
+              className="col-start-2"
             />
-            <Timer time={timer} />
+            <GameButtons
+              socket={socket}
+              gameState={gameState}
+              setGameState={setGameState}
+              userName={userName ?? ""}
+              overflowLevel={overflowLevel}
+              allowDrawThree={allowDrawThree}
+              timer={timer}
+              className="col-start-2"
+            />
           </div>
-          <Board
-            socket={socket}
-            onTable={onTable}
-            selected={selected}
-            gameState={gameState}
-            userName={userName ?? ""}
-            overflowLevel={overflowLevel}
-          />
-          <GameButtons
-            socket={socket}
-            gameState={gameState}
-            setGameState={setGameState}
-            userName={userName ?? ""}
-            overflowLevel={overflowLevel}
-            allowDrawThree={allowDrawThree}
-          />
-        </>
+        </div>
       )}
-    </div>
+    </>
   );
 }

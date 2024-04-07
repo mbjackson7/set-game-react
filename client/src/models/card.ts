@@ -3,6 +3,7 @@ export interface CardProps {
   selected: boolean;
   disabled?: boolean;
   bgColor?: string;
+  className?: string;
 }
 
 export interface CardAttributes {

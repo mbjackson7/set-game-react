@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  h1 {
+    @apply text-3xl;
+  }
+
   @font-face {
     font-family: "7Segment";
     font-style: normal;
