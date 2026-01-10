@@ -4,7 +4,7 @@
     "author": "Morgan Jackson",
     "description": "Backend to power set server",
     "dependencies": {
-        "express": "^4.18.2",
+        "express": "^4.22.1",
         "socket.io": "^4.7.2"
     },
     "optionalDependencies": {
