@@ -1,3 +1,4 @@
 export interface TimerProps {
-    time: number
+    time: number,
+    className?: string
 }
