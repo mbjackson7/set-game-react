@@ -62,6 +62,12 @@ export default function Menu() {
           >
             Join Room
           </button>
+          <button
+            className="w-40 border-2 bg-red-600 p-5"
+            onClick={() => navigate("/tutorial")}
+          >
+            Play Tutorial
+          </button>
         </>
       ) : (
         <>
