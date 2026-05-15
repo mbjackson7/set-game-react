@@ -322,7 +322,7 @@ export default function Tutorial() {
 
   return (
     <div
-      className={`w-screen h-[100dvh] bg-neutral-900 overflow-hidden ${
+      className={`relative w-screen h-[100dvh] bg-neutral-900 overflow-hidden ${
         vertical ? "flex flex-col" : "grid grid-cols-6 grid-rows-1"
       }`}
     >
@@ -356,8 +356,21 @@ export default function Tutorial() {
           />
         </div>
 
-        {/* Exit */}
-        <div className="shrink-0">
+        {/* Exit (bottom for vertical layout) */}
+        {vertical && (
+          <div className="shrink-0">
+            <button
+              className="w-40 h-12 border-2 bg-red-600 text-white text-xl rounded shadow"
+              onClick={() => navigate("/")}
+            >
+              Exit Tutorial
+            </button>
+          </div>
+        )}
+      </div>
+      {/* Exit (top-right for horizontal layout) */}
+      {!vertical && (
+        <div className="absolute top-4 right-4">
           <button
             className="w-40 h-12 border-2 bg-red-600 text-white text-xl rounded shadow"
             onClick={() => navigate("/")}
@@ -365,7 +378,7 @@ export default function Tutorial() {
             Exit Tutorial
           </button>
         </div>
-      </div>
+      )}
     </div>
   );
 }
