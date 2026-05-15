@@ -35,10 +35,11 @@ export default function Menu() {
         <>
           <input
             type="text"
-            className="border-2 border-black h-20 w-120 text-5xl text-center"
+            className="border-2 border-black h-20 w-120 text-5xl text-center bg-neutral-300 dark:bg-neutral-700 placeholder:text-neutral-600 focus:outline-none"
             placeholder="Enter Name Here"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            autoFocus={!name}
           />
           <button
             className="w-40 border-2 bg-green-600 p-5"
