@@ -28,6 +28,17 @@ export default function Menu() {
     });
   }
 
+  useEffect(() => {
+    if (nameEntered) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        handleNameEnter();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [nameEntered, name]);
+
   // create or join room
   return (
     <div className="w-screen h-[calc(100dvh)] flex flex-col justify-center items-center gap-10">
