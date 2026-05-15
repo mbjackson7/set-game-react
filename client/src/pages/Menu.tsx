@@ -35,7 +35,7 @@ export default function Menu() {
         <>
           <input
             type="text"
-            className="border-2 border-black h-20 w-120 text-5xl text-center bg-neutral-300 dark:bg-neutral-700 placeholder:text-neutral-600 focus:outline-none"
+            className="border-2 border-black h-20 w-120 text-5xl text-center bg-neutral-700 dark:bg-neutral-700 placeholder:text-neutral-400 text-white focus:outline-none"
             placeholder="Enter Name Here"
             value={name}
             onChange={(e) => setName(e.target.value)}
